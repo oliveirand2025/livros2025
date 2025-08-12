@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<title>Minha Biblioteca - Livros Lidos e a Ler</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<style>
+  body {
+    background-color: #121212;
+    color: #F1F5F9;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .campo {
+    width: 100%;
+    background-color: #1E293B;
+    border: 2px solid #3B82F6;
+    color: #F1F5F9;
+    font-weight: 600;
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  select.campo option {
+    background-color: #1E293B;
+    color: #F1F5F9;
+  }
+  #exportBtn {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    font-size: 0.85rem;
+  }
+  .card {
+    background-color: #1E293B;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  .card-body {
+    padding: 0.75rem;
+  }
+  .card-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .badge {
+    background-color: #3B82F6;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+  }
+  dialog.modal {
+    background-color: #1E293B;
+    color: #F1F5F9;
+    border: none;
+    border-radius: 0.6rem;
+  }
+  dialog.modal::backdrop {
+    background: rgba(0,0,0,0.7);
+  }
+
+  /* Layout: formulários à esquerda, listas à direita lado a lado */
+  .main-container {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: auto;
+    align-items: flex-start;
+  }
+  .forms-container {
+    flex: 1 1 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  form {
+    background-color: #1E293B;
+    padding: 1.5rem 1.5rem 2rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.6);
+  }
+  .lists-container {
+    flex: 2 1 900px;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: nowrap;
+  }
+  .list-section {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+  }
+  .list-header {
+    color: #3B82F6;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  .filters {
+    background-color: #15233a;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .filters input, .filters select {
+    background-color: #0f1a2a;
+    border: none;
+    color: #F1F5F9;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.3rem;
+    flex: 1 1 125px;
+    min-width: 120px;
+  }
+  #listaLivrosLidos, #listaLivrosALer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+    gap: 1rem;
+    overflow-y: auto;
+    max-height: 65vh;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="text-center text-4xl font-extrabold mt-4 mb-8">📚 Minha Biblioteca</h1>
+
+<div class="main-container">
+
+  <div class="forms-container">
+
+    <!-- Formulário Livros Lidos -->
+    <form id="formLivrosLidos" novalidate>
+      <h2 class="list-header">Adicionar Livro Lido</h2>
+      
+      <input type="text" id="tituloLido" placeholder="Título" required class="campo" />
+      <input type="text" id="autorLido" placeholder="Autor" class="campo" />
+      <input type="number" id="paginasLido" placeholder="Nº de Páginas" min="1" class="campo" />
+      <input type="number" id="anoLido" placeholder="Ano" min="0" class="campo" />
+      <select id="generoLido" class="campo" required>
+        <option value="">Gênero</option>
+        <option>Ficção</option>
+        <option>Não-Ficção</option>
+      </select>
+      <select id="avaliacaoLido" class="campo">
+        <option value="">Avaliação</option>
+        <option>⭐</option><option>⭐⭐</option><option>⭐⭐⭐</option>
+        <option>⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐</option>
+        <option>⭐⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐⭐⭐</option>
+        <option>⭐⭐⭐⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+        <option>⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+      </select>
+      <textarea id="sinopseLido" placeholder="Sinopse" class="campo"></textarea>
+      <textarea id="curiosidadesLido" placeholder="Curiosidades (opcional)" class="campo"></textarea>
+      <label for="dataFimLido" style="font-weight: 600;">Data de fim da leitura:</label>
+      <input type="month" id="dataFimLido" class="campo" />
+      <label for="capaLido" style="font-weight: 600;">Capa (JPEG)</label>
+      <input type="file" id="capaLido" accept="image/jpeg" class="campo" />
+      <button type="submit" class="btn btn-primary w-full mt-3">
+        <i class="fas fa-plus"></i> Adicionar Livro Lido
+      </button>
+    </form>
+
+    <!-- Formulário Livros a Ler -->
+    <form id="formLivrosALer" novalidate>
+      <h2 class="list-header">Adicionar Livro a Ler</h2>
+
+      <input type="text" id="tituloALer" placeholder="Título" required class="campo" />
+      <input type="text" id="autorALer" placeholder="Autor" class="campo" />
+      <input type="url" id="linkCompraALer" placeholder="Link onde comprar (URL)" class="campo" />
+      <textarea id="sinopseALer" placeholder="Sinopse" class="campo"></textarea>
+      <label for="capaALer" style="font-weight: 600;">Capa (JPEG)</label>
+      <input type="file" id="capaALer" accept="image/jpeg" class="campo" />
+      <button type="submit" class="btn btn-primary w-full mt-3">
+        <i class="fas fa-plus"></i> Adicionar Livro a Ler
+      </button>
+    </form>
+
+  </div>
+
+  <div class="lists-container">
+
+    <!-- Lista Livros Lidos -->
+    <section class="list-section">
+      <h2 class="list-header">Livros Lidos</h2>
+
+      <div class="filters">
+        <input type="text" id="filtroTituloLidos" placeholder="Título" />
+        <input type="text" id="filtroAutorLidos" placeholder="Autor" />
+        <select id="filtroAvaliacaoLidos">
+          <option value="">Avaliação</option>
+          <option>⭐</option><option>⭐⭐</option><option>⭐⭐⭐</option>
+          <option>⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐</option>
+          <option>⭐⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐⭐⭐</option>
+          <option>⭐⭐⭐⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+          <option>⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐</option>
+        </select>
+      </div>
+      <div id="listaLivrosLidos"></div>
+    </section>
+
+    <!-- Lista Livros a Ler -->
+    <section class="list-section">
+      <h2 class="list-header">Livros a Ler</h2>
+
+      <div class="filters">
+        <input type="text" id="filtroTituloALer" placeholder="Título" />
+        <input type="text" id="filtroAutorALer" placeholder="Autor" />
+      </div>
+      <div id="listaLivrosALer"></div>
+    </section>
+
+  </div>
+
+</div>
+
+<!-- Modal -->
+<dialog id="modalDetalhes" class="modal">
+  <form method="dialog" class="modal-box">
+    <button class="btn btn-sm btn-circle btn-error absolute right-3 top-3 closeBtn">
+      <i class="fas fa-times"></i>
+    </button>
+    <div id="modalConteudoLivros"></div>
+  </form>
+</dialog>
+
+<script>
+// Estados globais
+let livrosLidos = [];
+let livrosALer = [];
+
+// Carrega livros de JSON e exibe listas
+async function carregarLivros() {
+  try {
+    let respLidos = await fetch('livros.json?'+Date.now());
+    livrosLidos = await respLidos.json();
+
+    let respALer = await fetch('livros_a_ler.json?'+Date.now());
+    livrosALer = await respALer.json();
+
+    mostrarLivros(livrosLidos, 'listaLivrosLidos', 'filtroTituloLidos', 'filtroAutorLidos', 'filtroAvaliacaoLidos');
+    mostrarLivros(livrosALer, 'listaLivrosALer', 'filtroTituloALer', 'filtroAutorALer');
+
+  } catch (err) {
+    console.error('Erro ao carregar livros:', err);
+  }
+}
+
+// Exibe livros filtrando por campos
+function mostrarLivros(lista, containerId, filtroTituloId, filtroAutorId, filtroAvaliacaoId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const filtroTitulo = filtroTituloId ? document.getElementById(filtroTituloId).value.trim().toLowerCase() : '';
+  const filtroAutor = filtroAutorId ? document.getElementById(filtroAutorId).value.trim().toLowerCase() : '';
+  const filtroAvaliacao = filtroAvaliacaoId ? document.getElementById(filtroAvaliacaoId).value : '';
+
+  let listaFiltrada = lista.filter(l=>{
+    return (!filtroTitulo || (l.titulo && l.titulo.toLowerCase().includes(filtroTitulo)))
+      && (!filtroAutor || (l.autor && l.autor.toLowerCase().includes(filtroAutor)))
+      && (!filtroAvaliacao || (l.avaliacao && l.avaliacao === filtroAvaliacao));
+  });
+
+  listaFiltrada.forEach(l=>{
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <img src="${l.capa || ''}" alt="Capa do livro" />
+      <div class="card-body">
+        <h3 class="card-title">${l.titulo || ''}</h3>
+        <div class="badge">${l.autor || ''}</div>
+      </div>
+    `;
+    div.onclick = () => abrirModalLivro(l, containerId);
+    container.appendChild(div);
+  });
+}
+
+// Modal com detalhes do livro
+function abrirModalLivro(l, containerId) {
+  let html = `
+    <h2 class="text-2xl font-bold mb-2">${l.titulo}</h2>
+    <h3 class="italic mb-4">${l.autor || ''}</h3>
+    <img src="${l.capa || ''}" class="mb-4 w-32 h-44 object-cover rounded" alt="Capa do livro" />
+  `;
+
+  if (containerId === 'listaLivrosLidos') {
+    html += `
+      <div><strong>Páginas:</strong> ${l.paginas || '-'}</div>
+      <div><strong>Ano:</strong> ${l.ano || '-'}</div>
+      <div><strong>Gênero:</strong> ${l.genero || '-'}</div>
+      <div><strong>Avaliação:</strong> ${l.avaliacao || '-'}</div>
+      <div><strong>Data conclusão:</strong> ${formatarMesAno(l.dataFim) || '-'}</div>
+      <div class="mt-4 italic"><strong>Sinopse:</strong><br>${l.sinopse ? l.sinopse.replace(/\n/g,'<br>') : '-'}</div>
+      <div class="mt-4"><strong>Curiosidades:</strong><br>${l.curiosidades ? l.curiosidades.replace(/\n/g,'<br>') : '-'}</div>
+    `;
+  } else {
+    // Livros a Ler
+    html += `
+      <div><strong>Link onde comprar:</strong> ${l.linkCompra ? `<a href="${l.linkCompra}" target="_blank" rel="noopener noreferrer" class="underline text-blue-400">${l.linkCompra}</a>` : '-'}</div>
+      <div class="mt-4 italic"><strong>Sinopse:</strong><br>${l.sinopse ? l.sinopse.replace(/\n/g,'<br>') : '-'}</div>
+    `;
+  }
+
+  document.getElementById('modalConteudoLivros').innerHTML = html;
+  document.getElementById('modalDetalhes').showModal();
+}
+document.querySelector('.closeBtn').onclick = () => document.getElementById('modalDetalhes').close();
+
+function formatarMesAno(v) {
+  if(!v) return "-";
+  const [a,m] = v.split("-");
+  const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  return meses[parseInt(m)-1]+" "+a;
+}
+
+// Envio formulário Livros Lidos
+document.getElementById('formLivrosLidos').onsubmit = e => {
+  e.preventDefault();
+  const file = document.getElementById('capaLido').files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => enviarLivroLido(ev.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    enviarLivroLido('');
+  }
+};
+function enviarLivroLido(capaBase64) {
+  const livro = {
+    titulo: document.getElementById('tituloLido').value.trim(),
+    autor: document.getElementById('autorLido').value.trim(),
+    paginas: document.getElementById('paginasLido').value.trim(),
+    ano: document.getElementById('anoLido').value.trim(),
+    genero: document.getElementById('generoLido').value,
+    avaliacao: document.getElementById('avaliacaoLido').value,
+    sinopse: document.getElementById('sinopseLido').value.trim(),
+    curiosidades: document.getElementById('curiosidadesLido').value.trim(),
+    dataFim: document.getElementById('dataFimLido').value,
+    capa: capaBase64
+  };
+
+  fetch('salvar.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(livro)
+  }).then(res => res.json())
+    .then(data => {
+      if (data.status === 'sucesso') {
+        alert('Livro Lido adicionado com sucesso!');
+        e.target.reset();
+        carregarLivros();
+      } else {
+        alert('Erro: ' + data.mensagem);
+      }
+    })
+    .catch(err => {
+      alert('Erro na comunicação com o servidor.');
+      console.error(err);
+    });
+}
+
+// Envio formulário Livros a Ler
+document.getElementById('formLivrosALer').onsubmit = e => {
+  e.preventDefault();
+  const file = document.getElementById('capaALer').files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = ev => enviarLivroALer(ev.target.result);
+    reader.readAsDataURL(file);
+  } else {
+    enviarLivroALer('');
+  }
+};
+function enviarLivroALer(capaBase64) {
+  const livro = {
+    titulo: document.getElementById('tituloALer').value.trim(),
+    autor: document.getElementById('autorALer').value.trim(),
+    linkCompra: document.getElementById('linkCompraALer').value.trim(),
+    sinopse: document.getElementById('sinopseALer').value.trim(),
+    capa: capaBase64
+  };
+
+  fetch('salvar_a_ler.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(livro)
+  }).then(res => res.json())
+    .then(data => {
+      if (data.status === 'sucesso') {
+        alert('Livro a Ler adicionado com sucesso!');
+        e.target.reset();
+        carregarLivros();
+      } else {
+        alert('Erro: ' + data.mensagem);
+      }
+    })
+    .catch(err => {
+      alert('Erro na comunicação com o servidor.');
+      console.error(err);
+    });
+}
+
+// Atualizar listas ao usar filtros
+['filtroTituloLidos', 'filtroAutorLidos', 'filtroAvaliacaoLidos'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    mostrarLivros(livrosLidos, 'listaLivrosLidos', 'filtroTituloLidos', 'filtroAutorLidos', 'filtroAvaliacaoLidos');
+  });
+});
+['filtroTituloALer', 'filtroAutorALer'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    mostrarLivros(livrosALer, 'listaLivrosALer', 'filtroTituloALer', 'filtroAutorALer');
+  });
+});
+
+function exportarLivros() {
+  window.location.href = 'livros.json';
+}
+
+carregarLivros();
+</script>
+
+</body>
+</html>

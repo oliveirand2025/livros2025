@@ -1,0 +1,14 @@
+[
+  {
+    "titulo": "O Senhor dos Anéis",
+    "autor": "J.R.R. Tolkien",
+    "ano": 1954,
+    "genero": "Ficção",
+    "paginas": 1216,
+    "avaliacao": "⭐⭐⭐⭐⭐",
+    "sinopse": "Uma aventura épica pela Terra Média.",
+    "curiosidades": "Baseado em mitologia nórdica e anglo-saxónica.",
+    "capa": "imagens/senhor-aneis.jpg",
+    "dataFim": "2023-07"
+  }
+]
